@@ -220,7 +220,8 @@ The second answer identified Miranda Priestly as the mastermind.
 Both answers were accepted by the game.
 
 ⸻
-
+<img width="1070" height="230" alt="image" src="https://github.com/user-attachments/assets/ec676ecc-d104-4917-a45d-bc73852a2da5" />
+<img width="1033" height="208" alt="image" src="https://github.com/user-attachments/assets/cdfc5361-7cae-4c4a-97bc-cd1d6bc2cb2f" />
 
 
 8. Key SQL Concepts Practised
