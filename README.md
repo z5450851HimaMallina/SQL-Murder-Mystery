@@ -1,123 +1,141 @@
-# SQL-Murder-Mystery
+# SQL Murder Mystery: A Data Investigation
 <img width="1119" height="1051" alt="image" src="https://github.com/user-attachments/assets/65878a31-0df8-4bce-9a47-31de500ee79b" />
+<img width="1070" height="230" alt="image" src="https://github.com/user-attachments/assets/ec676ecc-d104-4917-a45d-bc73852a2da5" />
+<img width="1033" height="208" alt="image" src="https://github.com/user-attachments/assets/cdfc5361-7cae-4c4a-97bc-cd1d6bc2cb2f" />
 
-A Data Investigation
-SQL Murder Mystery: A Data Investigation
+## Project Overview
 
-Project Overview
+This project documents my investigation of a fictional murder in SQL
+City using SQL. I queried crime reports, witness interviews, gym
+membership records, check-in logs, driver's licence data, and income
+records to follow the evidence and identify the people responsible.
 
-This project uses SQL to investigate a fictional murder in SQL City. By querying a relational database, I examined crime scene reports, witness statements, gym memberships, check-in records, driver’s licences, and income data to identify the murderer and uncover the mastermind behind the crime.
+-   **Database:** SQLite
+-   **Project:** [SQL Murder Mystery](https://mystery.knightlab.com/)
+-   **Skills practised:** SQL filtering, pattern matching, sorting,
+    limiting results, and investigating related records across tables
 
-Tools: SQL (SQLite)
-Project: SQL Murder Mystery
-Key skills: Data querying, filtering, pattern matching, relational data investigation, and evidence-based reasoning.
+> **Spoiler warning:** This README contains the solution to the game.
 
-Spoiler warning: This project documents the investigation and its conclusion.
+------------------------------------------------------------------------
 
-⸻
+## 1. Investigate the Crime Scene
 
-1. Investigating the Crime Scene
+I began by searching for murder reports in SQL City.
 
-I started by searching for murder reports in SQL City.
-
+``` sql
 SELECT *
 FROM crime_scene_report
 WHERE city = 'SQL City'
   AND type = 'murder';
+```
 
-The results included a report dated 15 January 2018. The report indicated that there were two witnesses:
+The relevant report was dated **15 January 2018**. It mentioned two
+witnesses:
 
-* The first witness lived at the last house on Northwestern Drive.
-* The second witness, Annabel, lived on Franklin Avenue.
+-   The first witness lived at the last house on Northwestern Drive.
+-   The second witness, Annabel, lived somewhere on Franklin Avenue.
 
-Finding the witnesses
+### Find the witnesses
 
-I searched for Annabel by name.
+Search for Annabel by name:
 
+``` sql
 SELECT *
 FROM person
 WHERE name LIKE '%Annabel%';
+```
 
-I then searched for the person living at the highest house number on Northwestern Drive.
+Find the person living at the highest house number on Northwestern
+Drive:
 
+``` sql
 SELECT *
 FROM person
 WHERE address_street_name = 'Northwestern Dr'
 ORDER BY address_number DESC
 LIMIT 1;
+```
 
-These queries helped identify the two witnesses:
+These searches identified the witnesses as **Morty Schapiro** and
+**Annabel Miller**.
 
-* Morty Schapiro
-* Annabel Miller
+------------------------------------------------------------------------
 
-⸻
+## 2. Read the Witness Interviews
 
-2. Examining Witness Interviews
+I retrieved the interview records for both witnesses.
 
-I retrieved the interview records for the identified witnesses.
-
+``` sql
 SELECT *
 FROM interview
 WHERE person_id IN (14887, 16371);
+```
 
-Key evidence
+### Morty Schapiro's statement
 
-Morty Schapiro reported hearing a gunshot and seeing a man leave the scene. The man carried a Get Fit Now Gym bag with a membership number beginning with 48Z. Morty also remembered part of the vehicle’s registration plate: H42W.
+Morty reported hearing a gunshot and seeing a man leave the scene. The
+man carried a Get Fit Now Gym bag with a membership number beginning
+with `48Z`. Morty also remembered that the vehicle's registration plate
+contained `H42W`.
 
-Annabel Miller reported recognising the killer from her gym. She had seen him working out on 9 January 2018.
+### Annabel Miller's statement
 
-These statements provided several leads for further investigation.
+Annabel said she recognised the killer from her gym and had seen him
+working out on 9 January 2018.
 
-⸻
+These statements gave me leads to check against the gym and vehicle
+records.
 
-3. Investigating Gym Memberships
+------------------------------------------------------------------------
 
-Morty’s statement suggested that the suspect was a gold member of Get Fit Now Gym with a membership ID beginning with 48Z.
+## 3. Investigate Gym Memberships
 
-I searched for matching memberships.
+Morty's statement suggested that the person he saw was a gold member of
+Get Fit Now Gym with a membership ID beginning with `48Z`.
 
+``` sql
 SELECT *
 FROM get_fit_now_member
 WHERE membership_status = 'gold'
   AND id LIKE '48Z%';
+```
 
-The results identified two potential members:
+The results returned two matching memberships: `48Z7A` and `48Z55`.
 
-* Joe Germuska
-* Jeremy Bowers
+### Check gym attendance
 
-Checking gym attendance
+I checked whether either member visited the gym on 9 January 2018.
 
-I checked whether these members had visited the gym on 9 January 2018.
-
+``` sql
 SELECT *
 FROM get_fit_now_check_in
 WHERE check_in_date = 20180109
   AND membership_id IN ('48Z7A', '48Z55');
+```
 
-Both members had checked into the gym that day.
+Both membership IDs appeared in the check-in records for that date. I
+used the membership records and the witness statements together to
+narrow the investigation.
 
-The membership records and attendance data provided additional evidence to investigate alongside the witness statements.
+------------------------------------------------------------------------
 
-⸻
+## 4. Investigate the Vehicle
 
-4. Investigating Vehicle Registration Records
+Morty remembered a registration plate containing `H42W`. I searched for
+matching vehicle records.
 
-Morty remembered that the vehicle’s registration plate contained H42W.
-
-I searched the driver’s licence database for vehicles with matching registration details.
-
+``` sql
 SELECT *
 FROM drivers_license
 WHERE plate_number LIKE '%H42W%';
+```
 
-The results identified several possible vehicles and their associated licence records.
+I then used the matching licence IDs to find the associated people.
+Replace the IDs below with the licence IDs returned by your own query if
+your results differ.
 
-Identifying the vehicle owners
-
-I used the licence IDs to find the corresponding people.
-
+``` sql
 SELECT *
 FROM person
 WHERE license_id IN (
@@ -126,51 +144,60 @@ WHERE license_id IN (
     183779,
     664760
 );
+```
 
-Cross-referencing the vehicle and person records helped narrow down the potential suspects.
+Cross-referencing the vehicle records with the person table helped
+identify potential suspects.
 
-⸻
+------------------------------------------------------------------------
 
-5. Identifying the Murderer
+## 5. Identify the Murderer
 
-After reviewing the witness statements, gym membership records, check-in dates, and vehicle information, I investigated Jeremy Bowers further.
+I queried Jeremy Bowers's interview record to examine his statement.
 
-I retrieved his interview transcript.
-
+``` sql
 SELECT *
 FROM interview
 WHERE person_id = 67318;
+```
 
-Jeremy’s statement revealed that he had been hired by a wealthy woman. He described her physical appearance, vehicle, and attendance at the SQL Symphony Concert.
+Jeremy said that he had been hired by a wealthy woman. He described her
+appearance, vehicle, and attendance at the SQL Symphony Concert.
 
-These details provided new leads for identifying the person behind the crime.
+After comparing the available evidence, I submitted **Jeremy Bowers** as
+the murderer. The game accepted the answer.
 
-Finding: Jeremy Bowers was identified as the murderer.
+------------------------------------------------------------------------
 
-⸻
+## 6. Investigate the Mastermind
 
-6. Investigating the Mastermind
+Jeremy's interview described the woman who hired him as:
 
-Jeremy’s interview described the woman who hired him as:
+-   Wealthy
+-   Red-haired
+-   The driver of a Tesla Model S
+-   Approximately 65 or 67 inches tall
+-   Someone who attended the SQL Symphony Concert three times in
+    December 2017
 
-* Wealthy
-* Red-haired
-* The owner of a Tesla Model S
-* Approximately 5’5” or 5’7” tall
-* Someone who attended the SQL Symphony Concert three times in December 2017
+### Search vehicle and appearance records
 
-Searching driver’s licence records
+I searched for red-haired people associated with a Tesla Model S.
 
-I searched for red-haired individuals who drove Teslas.
-
+``` sql
 SELECT *
 FROM drivers_license
 WHERE hair_color = 'red'
   AND car_make = 'Tesla'
   AND car_model = 'Model S';
+```
 
-I then retrieved the corresponding people.
+### Match licence records to people
 
+I used the licence IDs returned by the previous query to find the
+corresponding people.
+
+``` sql
 SELECT *
 FROM person
 WHERE license_id IN (
@@ -179,11 +206,14 @@ WHERE license_id IN (
     736081,
     918773
 );
+```
 
-Investigating income records
+### Compare income records
 
-To compare the candidates’ financial circumstances, I searched the income table using their Social Security numbers.
+To investigate the candidates' financial circumstances, I searched the
+income table using their Social Security numbers.
 
+``` sql
 SELECT *
 FROM income
 WHERE ssn IN (
@@ -192,54 +222,80 @@ WHERE ssn IN (
     '337169072',
     '987756388'
 );
+```
 
-The results helped me investigate which candidate matched the description of a wealthy woman.
+### Check event attendance
 
-Checking event attendance
+I checked the event records for the candidate I was investigating.
 
-I also examined the event check-in records for the candidate matching the description.
-
+``` sql
 SELECT *
 FROM facebook_event_checkin
 WHERE person_id = 99716;
+```
 
-The event records provided another way to investigate the claim in Jeremy’s interview.
+I reviewed the returned records to see whether they supported the
+attendance detail in Jeremy's statement.
 
-Finding: Miranda Priestly was identified as the mastermind behind the murder.
+After submitting the second answer, the game accepted **Miranda
+Priestly** as the mastermind.
 
-⸻
+------------------------------------------------------------------------
 
-7. Final Verification
+## 7. Final Results
 
-The SQL Murder Mystery game provides a solution table for checking the answers.
+  Role         Person identified   Verification
+  ------------ ------------------- ----------------------
+  Murderer     Jeremy Bowers       Accepted by the game
+  Mastermind   Miranda Priestly    Accepted by the game
 
-The first answer identified Jeremy Bowers as the murderer.
+The conclusions above are the answers accepted by the SQL Murder Mystery
+game.
 
-The second answer identified Miranda Priestly as the mastermind.
+------------------------------------------------------------------------
 
-Both answers were accepted by the game.
+## 8. SQL Concepts Practised
 
-⸻
-<img width="1070" height="230" alt="image" src="https://github.com/user-attachments/assets/ec676ecc-d104-4917-a45d-bc73852a2da5" />
-<img width="1033" height="208" alt="image" src="https://github.com/user-attachments/assets/cdfc5361-7cae-4c4a-97bc-cd1d6bc2cb2f" />
+  -----------------------------------------------------------------------
+  SQL concept                         How I used it
+  ----------------------------------- -----------------------------------
+  `SELECT`                            Retrieve records from a table
 
+  `WHERE`                             Filter records using conditions
 
-8. Key SQL Concepts Practised
+  `AND`                               Apply multiple conditions together
 
-SQL concept	Application
-SELECT	Retrieve records from database tables
-WHERE	Filter records using specific conditions
-AND	Apply multiple filtering conditions
-IN	Match values against a list of IDs
-LIKE	Search for partial text matches
-ORDER BY	Sort records by a selected column
-LIMIT	Restrict the number of returned rows
-Cross-table investigation	Connect people, interviews, memberships, and vehicle records
+  `IN`                                Match a column against a list of
+                                      values
 
-Conclusion
+  `LIKE`                              Search for partial text matches
 
-This investigation demonstrated how SQL can be used to explore relational data, test witness statements against database records, narrow down potential suspects, and build an evidence-based conclusion.
+  `ORDER BY`                          Sort results by a column
 
-Rather than relying on a single record, I used multiple sources of information to investigate the case.
+  `DESC`                              Sort in descending order
 
-The exercise strengthened my understanding of SQL filtering, pattern matching, sorting, and structured investigation.
+  `LIMIT`                             Return a specified number of rows
+
+  Cross-table investigation           Use related identifiers to
+                                      investigate people, interviews,
+                                      memberships, vehicles, and income
+  -----------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+This project gave me practical experience using SQL to investigate a
+question through structured data. I combined witness statements with
+records from several tables, used filtering and pattern matching to
+narrow down possible leads, and checked my final conclusions in the
+game.
+
+The main lesson was to treat each statement as a lead to verify rather
+than as proof on its own. Comparing multiple records helped me build a
+more structured investigation.
+
+## Project Credit
+
+The database and interactive challenge are provided by [SQL Murder
+Mystery](https://mystery.knightlab.com/).
