@@ -1,4 +1,6 @@
 # SQL-Murder-Mystery
+<img width="1119" height="1051" alt="image" src="https://github.com/user-attachments/assets/65878a31-0df8-4bce-9a47-31de500ee79b" />
+
 A Data Investigation
 SQL Murder Mystery: A Data Investigation
 
@@ -218,6 +220,8 @@ The second answer identified Miranda Priestly as the mastermind.
 Both answers were accepted by the game.
 
 ⸻
+
+
 
 8. Key SQL Concepts Practised
 
